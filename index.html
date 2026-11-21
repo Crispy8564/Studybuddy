@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="StudyBuddy AI homework organiser and learning assistant">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>StudyBuddy</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--panel2:#1c2740;--text:#f4f6ff;--muted:#aab5ce;--accent:#9b8cff;--line:#2b3854;--good:#62d6a4}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#25234b 0,#0b1020 38rem);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:760px;margin:auto;padding:22px 16px 56px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:11px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#9b8cff,#5ed5c0);display:grid;place-items:center;color:#111827;font-weight:900;font-size:22px}
+    h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px}.pill{border:1px solid #40506e;border-radius:99px;padding:6px 10px;color:#c9c2ff;font-size:12px}
+    .hero{background:linear-gradient(135deg,#292653,#182b40);border:1px solid #45416d;border-radius:22px;padding:20px;margin-bottom:18px}
+    .hero h2{font-size:23px;margin:0 0 7px}.hero p{color:#d1d5e8;margin:0;line-height:1.45}
+    .tabs{display:flex;gap:8px;overflow:auto;margin:18px 0}.tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:12px;padding:10px 14px;white-space:nowrap;font-weight:650}.tab.active{background:#393365;color:white;border-color:#8274d9}
+    .card{background:rgba(21,29,49,.94);border:1px solid var(--line);border-radius:18px;padding:17px;margin:13px 0}
+    h3{margin:0 0 12px;font-size:17px}.field{display:grid;gap:7px;margin:12px 0}label{font-size:13px;color:#c6cee0}
+    input,select,textarea{width:100%;background:#0e1628;border:1px solid #35435f;border-radius:12px;color:var(--text);padding:12px;font:inherit;outline:none}
+    textarea{min-height:120px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+    button{border:0;border-radius:12px;padding:12px 15px;font:700 14px system-ui;cursor:pointer}
+    .primary{background:linear-gradient(135deg,#a99cff,#7b70d7);color:#111426}.secondary{background:#26334e;color:#e7eaff;border:1px solid #40506e}.danger{background:#482a3a;color:#ffd8e7}
+    .row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}.muted{color:var(--muted);font-size:13px;line-height:1.45}
+    .task{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-top:1px solid var(--line)}.task:first-child{border-top:0}.task input{width:auto;margin-top:4px}.taskname{flex:1}.taskname.done{text-decoration:line-through;color:#8e9ab3}
+    .tag{display:inline-block;border:1px solid #43516e;color:#c9d4ee;border-radius:99px;padding:3px 8px;font-size:11px;margin-top:5px}
+    .output{white-space:pre-wrap;background:#0d1526;border:1px solid #34415c;border-radius:12px;padding:12px;min-height:90px;color:#e5e9f8;font-size:14px;line-height:1.5}
+    .hidden{display:none!important}.notice{border-left:3px solid #9b8cff;padding:9px 12px;background:#201f3b;color:#dcd9ff;border-radius:8px;font-size:13px;line-height:1.45}
+    footer{color:#8190ad;text-align:center;font-size:12px;margin-top:26px}
+  </style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div class="brand"><div class="logo">S</div><div><h1>StudyBuddy</h1><div class="sub">Your homework, organised.</div></div></div>
+    <span class="pill">PHONE EDITION</span>
+  </header>
+  <section class="hero"><h2>Make study feel manageable.</h2><p>Plan assignments, turn questions into clear AI prompts, and learn with step-by-step explanations.</p></section>
+  <nav class="tabs" aria-label="App sections">
+    <button class="tab active" data-tab="planner">Planner</button>
+    <button class="tab" data-tab="helper">AI helper</button>
+    <button class="tab" data-tab="guide">How to use</button>
+  </nav>
+
+  <section id="planner">
+    <div class="card">
+      <h3>Add homework</h3>
+      <form id="taskForm">
+        <div class="field"><label for="taskTitle">What do you need to do?</label><input id="taskTitle" required maxlength="100" placeholder="e.g. Finish algebra questions 1–10"></div>
+        <div class="row">
+          <div class="field"><label for="subject">Subject</label><select id="subject"><option>Maths</option><option>English</option><option>Science</option><option>History</option><option>Geography</option><option>Languages</option><option>Computing</option><option>Art & Design</option><option>Other</option></select></div>
+          <div class="field"><label for="due">Due date</label><input id="due" type="date"></div>
+        </div>
+        <button class="primary" type="submit">＋ Add to planner</button>
+      </form>
+    </div>
+    <div class="card"><h3>Your homework</h3><div id="taskList" class="muted">No homework added yet. Add your first task above.</div></div>
+  </section>
+
+  <section id="helper" class="hidden">
+    <div class="card">
+      <h3>AI homework helper</h3>
+      <p class="muted">Paste a question or describe an assignment. StudyBuddy will prepare a useful prompt you can send to ChatGPT for a worked explanation, a draft, or feedback.</p>
+      <div class="field"><label for="helpSubject">Subject</label><select id="helpSubject"><option>Maths</option><option>English</option><option>Science</option><option>History</option><option>Geography</option><option>Languages</option><option>Computing</option><option>Art & Design</option><option>Other</option></select></div>
+      <div class="field"><label for="level">Your study level (optional)</label><input id="level" placeholder="e.g. Year 9, GCSE, A-level"></div>
+      <div class="field"><label for="question">Paste your homework question</label><textarea id="question" placeholder="Type or paste the question here..."></textarea></div>
+      <div class="field"><label for="helpMode">What kind of help do you want?</label><select id="helpMode"><option value="Explain it step by step, show the method, then give a final answer and a quick way to check it.">Explain and solve step by step</option><option value="Help me plan and write a strong draft. Explain the structure and identify facts I should verify.">Plan and draft a written answer</option><option value="Check my attempt, identify errors, and explain how to improve it. Do not just replace my work.">Check my own answer</option><option value="Create revision notes, key terms, and five practice questions with answers.">Make revision notes and a quiz</option></select></div>
+      <button class="primary" id="makePrompt" type="button">Create my AI prompt</button>
+    </div>
+    <div class="card">
+      <h3>Ready-to-use prompt</h3>
+      <div id="promptOutput" class="output">Your prompt will appear here.</div>
+      <div class="row" style="margin-top:10px"><button class="secondary" id="copyPrompt" type="button">Copy prompt</button><button class="primary" id="openChat" type="button">Open ChatGPT</button></div>
+      <p class="muted">Review AI-generated work, check facts and sources, and make sure the final submission reflects your own understanding and your school's rules.</p>
+    </div>
+  </section>
+
+  <section id="guide" class="hidden">
+    <div class="card"><h3>How this first version works</h3>
+      <ol class="muted" style="padding-left:20px;line-height:1.8">
+        <li>Use Planner to save tasks on this device.</li>
+        <li>Open AI helper and paste in a question.</li>
+        <li>Choose the type of help you need and create a prompt.</li>
+        <li>Copy it or open ChatGPT, then paste it into the chat.</li>
+        <li>Ask follow-up questions until you understand the method.</li>
+      </ol>
+      <div class="notice">This starter app does not secretly access your school account, submit homework, or call an AI service in the background. The AI step happens in ChatGPT after you choose to open it.</div>
+    </div>
+    <div class="card"><h3>Privacy</h3><p class="muted">Your planner items are stored locally in this browser on this device. Avoid entering private information about yourself or other people. Clearing browser data may erase your saved tasks.</p></div>
+  </section>
+  <footer>StudyBuddy · A learning assistant prototype</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
