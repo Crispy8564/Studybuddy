@@ -1,47 +1,10 @@
-const $ = (id) => document.getElementById(id);
-let tasks = [];
-try { tasks = JSON.parse(localStorage.getItem("studybuddy_tasks") || "[]"); } catch { tasks = []; }
-
-function save(){ localStorage.setItem("studybuddy_tasks", JSON.stringify(tasks)); renderTasks(); }
-function renderTasks(){
-  const list = $("taskList");
-  if(!tasks.length){ list.className="muted"; list.textContent="No homework added yet. Add your first task above."; return; }
-  list.className="";
-  list.innerHTML="";
-  tasks.sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999"));
-  tasks.forEach(task=>{
-    const row=document.createElement("div"); row.className="task";
-    const check=document.createElement("input"); check.type="checkbox"; check.checked=task.done; check.setAttribute("aria-label","Mark complete");
-    check.addEventListener("change",()=>{task.done=check.checked;save();});
-    const details=document.createElement("div"); details.className="taskname"+(task.done?" done":"");
-    const title=document.createElement("div"); title.textContent=task.title;
-    const tag=document.createElement("span"); tag.className="tag"; tag.textContent=task.subject+(task.due?" · Due "+task.due:"");
-    details.append(title,tag);
-    const del=document.createElement("button"); del.className="danger"; del.textContent="Delete"; del.addEventListener("click",()=>{tasks=tasks.filter(t=>t.id!==task.id);save();});
-    row.append(check,details,del); list.append(row);
-  });
-}
-$("taskForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  tasks.push({id:Date.now(),title:$("taskTitle").value.trim(),subject:$("subject").value,due:$("due").value,done:false});
-  $("taskTitle").value=""; save();
-});
-document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===tab));
-  ["planner","helper","guide"].forEach(id=>$(id).classList.toggle("hidden",id!==tab.dataset.tab));
-}));
-function buildPrompt(){
-  const q=$("question").value.trim();
-  if(!q){$("promptOutput").textContent="Please add your homework question first.";return;}
-  const prompt=`You are a patient, supportive tutor. Help me learn rather than simply doing the work for me.\nSubject: ${$("helpSubject").value}\nStudy level: ${$("level").value.trim()||"Not specified"}\nTask: ${$("helpMode").value}\n\nHomework question:\n${q}\n\nPlease use clear language appropriate to my level. Show reasoning in understandable steps, define unfamiliar terms, flag anything uncertain, and finish with a short check-your-understanding question. If this is an assessed task, help me create and understand my own answer rather than pretending you are me.`;
-  $("promptOutput").textContent=prompt;
-}
-$("makePrompt").addEventListener("click",buildPrompt);
-$("copyPrompt").addEventListener("click",async()=>{
-  const text=$("promptOutput").textContent;
-  try{await navigator.clipboard.writeText(text);$("copyPrompt").textContent="Copied!";setTimeout(()=>$("copyPrompt").textContent="Copy prompt",1600);}
-  catch{$("promptOutput").focus?.();alert("Copy is not available here. Press and hold the prompt text to select and copy it.");}
-});
-$("openChat").addEventListener("click",()=>window.open("https://chatgpt.com/","_blank","noopener"));
-renderTasks();
-if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+const $=id=>document.getElementById(id);
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));["capture","planner","help"].forEach(id=>$(id).classList.toggle("hidden",id!==b.dataset.tab));});
+$("educake").onclick=()=>window.open("https://www.educake.co.uk/","_blank","noopener");
+let shot=null;function showShot(f){shot=f;$("preview").src=URL.createObjectURL(f);$("preview").classList.remove("hidden");$("status").textContent="Screenshot selected: "+f.name;}
+$("choose").onclick=()=>$("file").click();$("file").onchange=()=>{if($("file").files[0])showShot($("file").files[0]);};
+$("capture").onclick=async()=>{if(!navigator.mediaDevices?.getDisplayMedia){$("status").textContent="Screen capture is unavailable here. Take an Android screenshot and tap Choose screenshot.";return;}try{const s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});const v=document.createElement("video");v.srcObject=s;await v.play();await new Promise(r=>setTimeout(r,500));const c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;c.getContext("2d").drawImage(v,0,0);c.toBlob(b=>{if(b)showShot(new File([b],"screen.png",{type:"image/png"}));});s.getTracks().forEach(t=>t.stop());}catch(e){$("status").textContent="Capture cancelled or unsupported. Take a screenshot and choose it instead.";}}
+$("make").onclick=()=>{$("out").textContent=`You are a supportive ${$("subject").value} tutor. My level is ${$("level").value||"not specified"}. Read the attached screenshot carefully. If anything is unclear, ask me rather than guessing. Explain what the question asks, teach the relevant concept, show the steps or a similar worked example, and help me check my own response. Flag uncertainty and finish with a quick understanding check. Extra context: ${$("extra").value||"None"}.`};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("out").textContent);$("copy").textContent="Copied!";}catch{$("status").textContent="Select and copy the prompt manually."}};$("chat").onclick=()=>window.open("https://chatgpt.com/","_blank","noopener");
+let tasks=[];try{tasks=JSON.parse(localStorage.getItem("sbv2tasks")||"[]")}catch{}function render(){const e=$("tasks");e.innerHTML="";if(!tasks.length){e.textContent="No tasks yet.";return;}tasks.forEach((t,i)=>{const d=document.createElement("div");d.style.padding="9px";d.textContent=t.title+" · "+t.subject+" · "+(t.due||"No due date")+" ";const x=document.createElement("button");x.textContent="Delete";x.onclick=()=>{tasks.splice(i,1);save()};d.append(x);e.append(d)})}function save(){localStorage.setItem("sbv2tasks",JSON.stringify(tasks));render()}$("add").onclick=()=>{if(!$("task").value.trim())return;tasks.push({title:$("task").value.trim(),subject:$("taskSubject").value,due:$("due").value});$("task").value="";save()};render();
+if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("./sw.js").catch(()=>{});
